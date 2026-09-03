@@ -1,3 +1,16 @@
+# Python Virtual Environments & Cache
+venv/
+env/
 __pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# OS Generated Files
 .DS_Store
-*.ipynb_checkpoints/
+Thumbs.db
+
+# Stata Temporary Files & Logs (Keeps the repo clean)
+*.log
+*.smcl
+*.ster
+

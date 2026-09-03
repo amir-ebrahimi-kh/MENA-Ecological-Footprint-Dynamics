@@ -17,7 +17,8 @@ print("Loading raw Ecological Footprint data...")
 if not os.path.exists(DATA_PATH):
     print(f"Error: Could not find '{DATA_PATH}'. Please ensure 'EF Data.xlsx' is in the 'data/raw' folder.")
 else:
-    ef_raw = pd.read_excel(DATA_PATH)
+    # Added engine='openpyxl' to ensure compatibility with modern Excel files
+    ef_raw = pd.read_excel(DATA_PATH, engine='openpyxl')
 
     # ==========================================
     # 2. DATA FILTERING & AGGREGATION
@@ -58,8 +59,8 @@ else:
     plt.legend(loc='upper left')
     plt.tight_layout()
     
-    # Save the figure
-    fig_path = os.path.join(FIGURES_DIR, 'Figure1_ecological_deficit.png')
+    # Updated naming to fit the portfolio sequence cleanly
+    fig_path = os.path.join(FIGURES_DIR, 'Figure1_MENA_Ecological_Deficit.png')
     plt.savefig(fig_path, dpi=300)
     plt.close()
     
