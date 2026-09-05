@@ -51,8 +51,7 @@ else:
     plt.fill_between(regional_totals.index, regional_totals['biocap_total_gha'], 
                      regional_totals['efp_total_gha'], color='lightcoral', alpha=0.4, label='Ecological Deficit')
 
-    # Formatting
-    plt.title('The Widening Ecological Deficit in the MENA Region (2005-2020)', fontsize=14, fontweight='bold')
+    # Formatting (Title removed to allow LaTeX captioning)
     plt.ylabel('Millions of Global Hectares (gha)', fontsize=12)
     plt.xlabel('Year', fontsize=12)
     plt.xlim(2005, 2020)

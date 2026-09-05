@@ -23,22 +23,31 @@ global controls ln_gdp_per_capita ln_gdp_sq ln_fossil_fuel_share ln_renewable_en
 // 5. DYNAMIC THRESHOLD ESTIMATION (Kremer et al., 2013)
 // =====================================================================
 display "Estimating Dynamic Panel Threshold (FOD) for Ecological Footprint..."
-
-// Create a directory for the threshold graphs
 capture mkdir "results/figures"
 
 // Model 1: Palma Threshold Effect
-xtendothresdpd ln_ef L.ln_ef $controls, thresv(ln_palma) stub(m1) pivar(ln_palma) dgmmiv(ln_ef) fodeviation grid(100)
-// Save the Likelihood Ratio graph as a high-quality PNG
-graph export "results/figures/Figure2_Palma_Threshold.png", replace width(2000)
+xtendothresdpd ln_ef L.ln_ef $controls, thresv(ln_gdp_per_capita) stub(m1) pivar(ln_palma) dgmmiv(ln_ef) fodeviation grid(100)
+// Save physical graph and store estimation results
+graph save "results/figures/palma_temp.gph", replace
 eststo threshold_model1
 
 // Model 2: Gini Threshold Effect (Robustness)
 display "Estimating Dynamic Panel Threshold (FOD) using Gini..."
-xtendothresdpd ln_ef L.ln_ef $controls, thresv(ln_gini_wid) stub(m2) pivar(ln_gini_wid) dgmmiv(ln_ef) fodeviation grid(100)
-// Save the second graph
-graph export "results/figures/Figure3_Gini_Threshold.png", replace width(2000)
+xtendothresdpd ln_ef L.ln_ef $controls, thresv(ln_gdp_per_capita) stub(m2) pivar(ln_gini_wid) dgmmiv(ln_ef) fodeviation grid(100)
+// Save physical graph and store estimation results
+graph save "results/figures/gini_temp.gph", replace
 eststo threshold_model2
+
+// Combine the physical .gph files side-by-side
+graph combine "results/figures/palma_temp.gph" "results/figures/gini_temp.gph", ///
+    xsize(10) ysize(5)
+
+// Export the combined graph as a single high-quality PNG
+graph export "results/figures/Figure2_Combined_Thresholds.png", replace width(2000)
+
+// Clean up the temporary files
+erase "results/figures/palma_temp.gph"
+erase "results/figures/gini_temp.gph"
 
 // =====================================================================
 // 6. EXPORT RESULTS TO CSV

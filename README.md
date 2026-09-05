@@ -1,3 +1,4 @@
+Markdown
 # MENA Ecological Footprint Dynamics: A Dynamic Panel Threshold Analysis
 
 ## 📌 Overview
@@ -16,46 +17,38 @@ This repository contains the complete, reproducible data engineering and econome
 MENA-Ecological-Footprint-Dynamics/
 │
 ├── data/
-│   ├── raw/                          # Raw input variables (master panel)
-│   └── processed/                    # Engineered panel output from Python pipeline
+│   ├── raw/                      # Raw input variables (master panel)
+│   └── processed/                # Engineered panel output from Python pipeline
 │
 ├── src/
-│   ├── 01_knn_imputation.py          # Python: Data cleaning, KNN, transformations
-│   ├── 02_linear_baseline_dfe.do     # Stata: Kiviet bias-corrected LSDVC models
-│   ├── 03_dynamic_threshold_fod.do   # Stata: Kremer FOD Threshold models & graphs
-│   └── 04_visualizations.py          # Python: Descriptive trend analysis & charting
+│   ├── 01_data_preprocessing.py  # Python: Data cleaning, KNN, transformations
+│   ├── 02_linear_baseline_dfe.do # Stata: Kiviet bias-corrected LSDVC models
+│   ├── 03_dynamic_threshold_fod.do # Stata: Kremer FOD Threshold models & graphs
+│   └── 04_visualizations.py      # Python: Descriptive trend analysis & charting
 │
 ├── results/
-│   ├── tables/                       # Automated CSV outputs of regression matrices
-│   └── figures/                      # High-resolution Likelihood Ratio (LR) & trend plots
+│   ├── tables/                   # Automated CSV outputs of regression matrices
+│   └── figures/                  # High-resolution Likelihood Ratio (LR) & trend plots
 │
-├── .gitignore                        # Standard Git ignore file
-├── requirements.txt                  # Python dependencies
-└── README.md                         # Project documentation
+├── .gitignore                    # Standard Git ignore file
+├── requirements.txt              # Python dependencies
+└── README.md                     # Project documentation
 
-```
-
-## 🚀 Replication Guide
-
+🚀 Replication Guide
 This pipeline is designed for seamless local execution.
 
-**Step 1: Python Environment & Data Pipeline**
+Step 1: Python Environment & Data Pipeline
 First, install the required Python packages, then execute the data engineering and visualization scripts.
 
-```bash
+Bash
 pip install -r requirements.txt
-python src/01_knn_imputation.py
+python src/01_data_preprocessing.py
 python src/04_visualizations.py
+Step 2: Econometric Modeling
+Open Stata, set your working directory to the project root, and execute the .do files. The scripts are programmed to automatically create results/tables/ and results/figures/ folders and export outputs.
 
-```
-
-**Step 2: Econometric Modeling**
-Open Stata, set your working directory to the project root, and execute the `.do` files. The scripts are programmed to automatically create `results/tables/` and `results/figures/` folders and export outputs.
-
-```stata
+Stata
 do "src/02_linear_baseline_dfe.do"
 do "src/03_dynamic_threshold_fod.do"
 
-```
-
-*(Requires community Stata packages: `xtlsdvc`, `estout`, `xtendothresdpd`)*
+(Requires community Stata packages: xtlsdvc, estout, xtendothresdpd)

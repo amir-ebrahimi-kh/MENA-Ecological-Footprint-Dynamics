@@ -28,7 +28,7 @@ df.loc[df['renewable_energy'] == 0, 'renewable_energy'] = np.nan
 # ==========================================
 # 3. K-NEAREST NEIGHBORS (KNN) IMPUTATION
 # ==========================================
-print("Running KNN Imputation (k=3) as specified in the Q1 manuscript...")
+print("Running KNN Imputation (k=3)...")
 
 # We define the specific feature space + targets to be imputed
 knn_cols = [
@@ -80,7 +80,30 @@ summary_stats['count'] = summary_stats['count'].astype(int)
 print(summary_stats.round(2))
 
 # ==========================================
-# 6. SAVE FILE
+# 6. FILTER AND SAVE FILE (UPDATED)
 # ==========================================
-df_imputed.to_csv(OUTPUT_PATH, index=False)
-print(f"\nSUCCESS! Engineered dataset saved to:\n{OUTPUT_PATH}")
+print("\nFiltering dataset to retain only essential econometric variables...")
+
+# Define strictly the variables needed for the final Stata regressions
+essential_cols = [
+    'country',                # Panel identifier
+    'year',                   # Time identifier
+    'ln_ef',                  # Dependent Variable
+    'ln_co2_per_capita',      # Robustness Dependent Variable
+    'ln_palma',               # Main Independent (Palma)
+    'ln_gini_wid',            # Main Independent (Gini)
+    'ln_gdp_per_capita',      # EKC / Threshold Variable
+    'ln_fossil_fuel_share',   # Control
+    'ln_renewable_energy',    # Control
+    'ln_urban_pct',           # Control
+    'ln_trade_openness',      # Control
+    'ln_oil',                 # Control
+    'ihs_fdi'                 # Control
+]
+
+# Keep only the essential columns
+df_final = df_imputed[essential_cols]
+
+# Save the pristine dataset
+df_final.to_csv(OUTPUT_PATH, index=False)
+print(f"\nSUCCESS! Cleaned, minimal dataset saved to:\n{OUTPUT_PATH}")
