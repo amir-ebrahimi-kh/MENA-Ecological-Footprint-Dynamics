@@ -1,4 +1,3 @@
-Markdown
 # MENA Ecological Footprint Dynamics: A Dynamic Panel Threshold Analysis
 
 ## 📌 Overview
@@ -33,22 +32,27 @@ MENA-Ecological-Footprint-Dynamics/
 ├── .gitignore                    # Standard Git ignore file
 ├── requirements.txt              # Python dependencies
 └── README.md                     # Project documentation
+```
 
-🚀 Replication Guide
+## 🚀 Replication Guide
+
 This pipeline is designed for seamless local execution.
 
-Step 1: Python Environment & Data Pipeline
+**Step 1: Python Environment & Data Pipeline**
 First, install the required Python packages, then execute the data engineering and visualization scripts.
 
-Bash
+```bash
 pip install -r requirements.txt
 python src/01_data_preprocessing.py
 python src/04_visualizations.py
-Step 2: Econometric Modeling
-Open Stata, set your working directory to the project root, and execute the .do files. The scripts are programmed to automatically create results/tables/ and results/figures/ folders and export outputs.
+```
 
-Stata
+**Step 2: Econometric Modeling**
+Open Stata, set your working directory to the project root, and execute the `.do` files. The scripts are programmed to automatically create `results/tables/` and `results/figures/` folders and export outputs.
+
+```stata
 do "src/02_linear_baseline_dfe.do"
 do "src/03_dynamic_threshold_fod.do"
+```
 
-(Requires community Stata packages: xtlsdvc, estout, xtendothresdpd)
+*(Requires community Stata packages: `xtlsdvc`, `estout`, `xtendothresdpd`)*
