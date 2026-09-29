@@ -1,36 +1,43 @@
 # The Impact of Income Inequality on the Ecological Footprint in MENA Countries
 
+![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)
+![Stata Version](https://img.shields.io/badge/stata-16+-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+
 **Replication Repository for:** *The Impact of Income Inequality on the Ecological Footprint in MENA Countries: A Comparative Study of Linear and Non-linear Methods* (Submitted to *Ecological Economics*).
 
-This repository contains the complete data pipeline, Python preprocessing scripts, and Stata econometric models required to replicate all tables, figures, and statistical findings presented in the manuscript. 
+This repository contains the complete data pipeline, Python preprocessing scripts, and Stata econometric models required to replicate all tables, figures, and statistical findings presented in the manuscript.
 
-## 📌 Project Overview
+## 📌 Abstract / Project Overview
 
-This study investigates the association between income inequality (measured by the Palma ratio) and the production-based Ecological Footprint across 17 Middle East and North Africa (MENA) countries from 2005 to 2020. 
-
-Grounded in the **political economy of the environment (the "Boyce effect")**, the methodology contrasts linear dynamic panel models against non-linear threshold regimes to test whether elite-driven domestic infrastructure and resource extraction drive ecological overshoot in rentier states.
+This study investigates the association between income inequality (measured by the Palma ratio) and the production-based Ecological Footprint across 17 Middle East and North Africa (MENA) countries from 2005 to 2020. Grounded in the **political economy of the environment (the "Boyce effect")**, the methodology contrasts linear dynamic panel models against non-linear threshold regimes. The analysis aims to test whether elite-driven domestic infrastructure and resource extraction drive ecological overshoot in rentier states, demonstrating how structural inequality influences environmental degradation in the MENA region.
 
 ## 📂 Repository Structure
 
-The project is organized to ensure strictly reproducible workflows from raw data to final estimates:
+The project is structured to guarantee a strictly reproducible workflow from raw data ingestion to the generation of final regression estimates and visualizations:
 
+```text
+.
 ├── data/
-│   ├── raw/                 # Original data from GFN, WDI, WID, OWID, and IEA
-│   └── cleaned/             # Processed datasets ready for econometric modeling
-├── src/
-│   ├── 00_build_master_panel.py      # Merges raw datasets
-│   ├── 01_data_engineering.py        # Handles KNN imputation and IHS transformations
-│   ├── 03_pre_estimation_tests.do    # Stata: Unit roots, CSD, and collinearity tests
-│   ├── 04_baseline_and_robustness.do # Stata: LSDVC and Sys-GMM estimations (Tables 3 & 4)
-│   ├── 06_threshold_correction.do    # Stata: Dynamic Panel Threshold Regression (Table 5)
-│   └── 08_plot_ecological_deficit.py # Python: Generates Figure 1
+│   ├── raw/                 # Original raw datasets (GFN, WDI, WID, OWID, IEA)
+│   └── cleaned/             # Processed, combined datasets ready for econometric modeling
 ├── results/
 │   ├── figures/             # Output directory for generated PNG/EPS charts
 │   ├── logs/                # Stata and Python execution logs
-│   └── tables/              # LaTeX and CSV outputs of regression tables
-├── requirements.txt         # Python dependencies
-└── README.md
-
+│   └── tables/              # LaTeX and CSV outputs of regression summary tables
+├── src/
+│   ├── 00_build_master_panel.py      # Merges raw data into a master panel
+│   ├── 01_data_engineering.py        # Applies KNN imputation and IHS transformations
+│   ├── 02_pre_regression_graphs.py   # Generates pre-regression descriptive visualizations
+│   ├── 03_pre_estimation_tests.do    # Stata: Unit roots, CSD, and collinearity tests
+│   ├── 04_baseline_and_robustness.do # Stata: Baseline LSDVC & Sys-GMM estimations
+│   ├── 05_leave_one_out.do           # Stata: Sensitivity checks and Leave-One-Out validation
+│   ├── 06_threshold_correction.do    # Stata: Dynamic Panel Threshold Regression
+│   └── 07_post_regression_graphs.py  # Generates post-regression figures and threshold graphs
+├── .gitignore               # Ignored files for Python/Stata
+├── requirements.txt         # Python dependency lockfile
+└── README.md                # Project documentation
+```
 
 ## 🛠️ Methodological Notes for Reviewers
 
@@ -48,25 +55,44 @@ To test for structural breaks across economic development stages, we employ the 
 ## 🚀 How to Reproduce
 
 ### Prerequisites
-*   **Python 3.9+**
-*   **Stata 16+** (Requires packages: xtlsdvc, xtendothresdpd, pesaran)
+*   **Python 3.9+** (Requires packages listed in `requirements.txt`)
+*   **Stata 16+** (Requires packages: `xtlsdvc`, `xtendothresdpd`, `pesaran`, `xtcd`, `multipurt`, `xtabond2`, `estout`)
 
-### Step-by-Step Execution
+### Step-by-Step Execution Guide
+
 1.  **Clone the repository:**
+    ```bash
     git clone https://github.com/[your-username]/mena-ecological-inequality.git
     cd mena-ecological-inequality
+    ```
 
 2.  **Install Python dependencies:**
+    ```bash
     pip install -r requirements.txt
+    ```
 
 3.  **Run the Data Pipeline (Python):**
-    Execute scripts 00 through 02 in the src/ folder. This will ingest the files in data/raw/, apply the KNN algorithm and IHS transformations, and output engineered_panel.csv to data/cleaned/.
+    Execute scripts 00 through 02 sequentially in the `src/` folder. This processes the raw files in `data/raw/`, applies the KNN imputation and IHS transformations, builds the main panel, and generates initial visualizations.
+    ```bash
+    python src/00_build_master_panel.py
+    python src/01_data_engineering.py
+    python src/02_pre_regression_graphs.py
+    ```
 
 4.  **Run the Econometric Models (Stata):**
-    Open Stata, set your working directory to the repository root, and execute scripts 03, 04, 05, and 06 in the src/ folder. Regression tables will be exported directly to results/tables/.
+    Open Stata, set your working directory to the repository root, and execute scripts 03, 04, 05, and 06 sequentially in the `src/` folder. Regression tables will be exported directly to `results/tables/`. (Alternatively, run them in batch mode as shown below).
+    ```bash
+    stata-mp -b do src/03_pre_estimation_tests.do
+    stata-mp -b do src/04_baseline_and_robustness.do
+    stata-mp -b do src/05_leave_one_out.do
+    stata-mp -b do src/06_threshold_correction.do
+    ```
 
-5.  **Generate Figures (Python):**
-    Execute scripts 07, 08, and 09 to generate the exact, publication-ready graphics used in the manuscript (Figures 1 and 2), which will be saved to results/figures/.
+5.  **Generate Post-Regression Figures (Python):**
+    Execute script 07 to generate the post-regression graphics (Figure 2 and regime split scatter), which will be saved to `results/figures/`.
+    ```bash
+    python src/07_post_regression_graphs.py
+    ```
 
 ## 📜 License & Data Availability
 The code in this repository is licensed under the MIT License. The raw macroeconomic and environmental data are publicly available from their respective providers (World Bank, Global Footprint Network, World Inequality Database, Our World in Data).

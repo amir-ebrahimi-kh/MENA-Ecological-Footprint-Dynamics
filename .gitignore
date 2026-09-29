@@ -1,17 +1,70 @@
-# Python Virtual Environments & Cache
-venv/
-env/
+# =========================
+# Python / Virtual Environments
+# =========================
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebooks
 .ipynb_checkpoints/
+*.ipynb
 
-# OS Generated Files
-.DS_Store
-**/.DS_Store
-Thumbs.db
-
-# Stata Temporary Files & Logs (Keeps the repo clean)
+# =========================
+# Stata
+# =========================
 *.log
 *.smcl
 *.ster
 *.gph
+*.tmp
+
+# =========================
+# Data & Outputs (Optional/Customizable based on Repo Size constraints)
+# =========================
+# Note: Raw data might be kept, but typically we want to exclude generated PDFs or very large artifacts if not using LFS
+# data/cleaned/
+# results/figures/
+# results/tables/
+
+# =========================
+# OS Artifacts
+# =========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+ehthumbs_vista.db
+[Tt]humbs.db
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*~
