@@ -1,0 +1,111 @@
+------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Amirhossein\Desktop\MENA-Ecological-Footprint-Dynamics\results/logs/06_threshold_log.txt
+  log type:  text
+ opened on:  29 Sep 2026, 13:45:01
+
+. 
+. import delimited "data/cleaned/engineered_panel.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(19 vars, 272 obs)
+
+. encode country, generate(country_id)
+
+. xtset country_id year
+
+Panel variable: country_id (strongly balanced)
+ Time variable: year, 2005 to 2020
+         Delta: 1 unit
+
+. gen ln_gdp_sq = ln_gdp_per_capita^2
+
+. global controls ln_gdp_per_capita ln_gdp_sq ihs_renew_share_eia ln_urban_pct ln_trade_openness ihs_oil_rents ihs_fdi_unctad
+
+. 
+. /* --- 1. RUN BASE THRESHOLD MODEL (MANUSCRIPT TABLE 5) --- */
+. xtendothresdpd ln_ef_prod L.ln_ef_prod $controls, thresv(ln_gdp_per_capita) stub(rgm) pivar(ln_palma) dgmmiv(ln_ef_prod) fodeviation gri
+> d(100)
+
+==============================================================================
+Performing Dynamic Panel Data Threshold Effects with
+Endogenous Regressors Estimations.
+This may take some time, please wait.
+==============================================================================
+
+
+Dynamic panel-data estimation                   Number of obs     =        255
+Group variable: country_id                      Number of groups  =         17
+Time variable: year
+                                                Obs per group:
+                                                              min =         15
+                                                              avg =         15
+                                                              max =         15
+
+Number of instruments =    106                  Wald chi2(10)     =     300.43
+                                                Prob > chi2       =     0.0000
+One-step results
+-------------------------------------------------------------------------------------
+         ln_ef_prod | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+         ln_ef_prod |
+                L1. |   .3927902    .073429     5.35   0.000      .248872    .5367083
+                    |
+    below_thres_rgm |   .1131963   .0660305     1.71   0.086     -.016221    .2426137
+    above_thres_rgm |   .1494225   .0677132     2.21   0.027      .016707    .2821379
+  ln_gdp_per_capita |   .4194177   .2243423     1.87   0.062    -.0202851    .8591205
+          ln_gdp_sq |     -.0191   .0123915    -1.54   0.123    -.0433868    .0051869
+ihs_renew_share_eia |  -.0662793    .025356    -2.61   0.009    -.1159762   -.0165824
+       ln_urban_pct |  -.0674494   .2315891    -0.29   0.771    -.5213557    .3864569
+  ln_trade_openness |   .0537928   .0440982     1.22   0.223     -.032638    .1402236
+      ihs_oil_rents |   .0643664   .0232033     2.77   0.006     .0188888     .109844
+     ihs_fdi_unctad |   .0095941   .0097648     0.98   0.326    -.0095446    .0287328
+              _cons |  -1.968169   1.880186    -1.05   0.295    -5.653265    1.716927
+-------------------------------------------------------------------------------------
+Instruments for differenced equation
+        GMM-type: L(2/.).ln_ef_prod
+Instruments for level equation
+        Standard: _cons
+(All differences are forward-orthogonal deviations)
+
+Threshold Parameter (level = 90)
+_______________________________________________________
+              Threshold       Lower       Upper
+_______________________________________________________
+Gamma_Hat   9.036818        7.569211    10.73006
+_______________________________________________________
+
+
+. local gamma = e(gammahat)
+
+. 
+. /* --- 2. EXPORT SSR DATA SAFELY FOR PYTHON GRAPHING (FIGURE 2) --- */
+. // We directly export the variables xtendothresdpd creates, avoiding serset entirely.
+. preserve
+
+. keep rgm_gamma rgm_lrofgamma
+
+. drop if missing(rgm_gamma)
+(173 observations deleted)
+
+. export delimited using "data/cleaned/threshold_graph_data.csv", replace
+file data/cleaned/threshold_graph_data.csv saved
+
+. restore
+
+. 
+. /* --- 3. ROBUSTNESS: GULF PROXY CHECK --- */
+. display "--- DROPPING GULF STATES ---"
+--- DROPPING GULF STATES ---
+
+. gen is_gulf = inlist(country, "Bahrain", "Kuwait", "Oman", "Qatar", "Saudi Arabia", "United Arab Emirates")
+
+. capture xtendothresdpd ln_ef_prod L.ln_ef_prod $controls if is_gulf == 0, thresv(ln_gdp_per_capita) stub(nogulf) pivar(ln_palma) dgmmiv(
+> ln_ef_prod) fodeviation grid(50)
+
+. 
+. log close
+      name:  <unnamed>
+       log:  C:\Users\Amirhossein\Desktop\MENA-Ecological-Footprint-Dynamics\results/logs/06_threshold_log.txt
+  log type:  text
+ closed on:  29 Sep 2026, 13:45:11
+------------------------------------------------------------------------------------------------------------------------------------------

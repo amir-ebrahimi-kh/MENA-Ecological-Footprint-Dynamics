@@ -1,0 +1,158 @@
+------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Amirhossein\Desktop\MENA-Ecological-Footprint-Dynamics\results/logs/05_sensitivity_log.txt
+  log type:  text
+ opened on:  29 Sep 2026, 12:39:57
+
+. 
+. import delimited "data/cleaned/engineered_panel.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(19 vars, 272 obs)
+
+. encode country, generate(country_id)
+
+. xtset country_id year
+
+Panel variable: country_id (strongly balanced)
+ Time variable: year, 2005 to 2020
+         Delta: 1 unit
+
+. gen ln_gdp_sq = ln_gdp_per_capita^2
+
+. global controls ln_gdp_per_capita ln_gdp_sq ihs_renew_share_eia ln_urban_pct ln_trade_openness ihs_oil_rents ihs_fdi_unctad
+
+. 
+. /* --- 1. SENSITIVITY 1: CONFLICT-FREE & DROP 2020 & DROP IRQ/LBN --- */
+. preserve
+
+. drop if inlist(country, "Syria", "Yemen", "Libya")
+(48 observations deleted)
+
+. set seed 12345
+
+. xtlsdvc ln_ef_prod ln_palma $controls, initial(ab) vcov(50)
+Note: Bias correction initialized by Arellano and Bond estimator
+note: Bias correction up to order O(1/T)
+
+LSDVC dynamic regression
+(bootstrapped SE)
+-------------------------------------------------------------------------------------
+         ln_ef_prod | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+         ln_ef_prod |
+                L1. |    .706265   .0425342    16.60   0.000     .6228994    .7896306
+                    |
+           ln_palma |   .0659754   .0407473     1.62   0.105    -.0138878    .1458386
+  ln_gdp_per_capita |  -.0531082   .1910543    -0.28   0.781    -.4275677    .3213513
+          ln_gdp_sq |   .0066261    .010439     0.63   0.526    -.0138339    .0270861
+ihs_renew_share_eia |  -.0361109   .0191431    -1.89   0.059    -.0736307    .0014089
+       ln_urban_pct |  -.1038488   .2301486    -0.45   0.652    -.5549318    .3472342
+  ln_trade_openness |   .0481089   .0359706     1.34   0.181    -.0223922    .1186101
+      ihs_oil_rents |   .0170068   .0124979     1.36   0.174    -.0074887    .0415024
+     ihs_fdi_unctad |   .0028936   .0067635     0.43   0.669    -.0103627    .0161498
+-------------------------------------------------------------------------------------
+
+. restore
+
+. 
+. preserve
+
+. drop if year == 2020
+(17 observations deleted)
+
+. set seed 12345
+
+. xtlsdvc ln_ef_prod ln_palma $controls, initial(ab) vcov(50)
+Note: Bias correction initialized by Arellano and Bond estimator
+note: Bias correction up to order O(1/T)
+
+LSDVC dynamic regression
+(bootstrapped SE)
+-------------------------------------------------------------------------------------
+         ln_ef_prod | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+         ln_ef_prod |
+                L1. |   .6105394   .0469822    13.00   0.000     .5184559    .7026229
+                    |
+           ln_palma |   .0917316   .0370161     2.48   0.013     .0191814    .1642819
+  ln_gdp_per_capita |   .0851553   .1239675     0.69   0.492    -.1578165     .328127
+          ln_gdp_sq |  -.0000297   .0069457    -0.00   0.997     -.013643    .0135835
+ihs_renew_share_eia |  -.0549243   .0157924    -3.48   0.001    -.0858769   -.0239717
+       ln_urban_pct |  -.1661025   .0948127    -1.75   0.080     -.351932    .0197269
+  ln_trade_openness |   .0702848    .033711     2.08   0.037     .0042125    .1363572
+      ihs_oil_rents |   .0287141   .0116716     2.46   0.014     .0058381      .05159
+     ihs_fdi_unctad |  -.0037899   .0055636    -0.68   0.496    -.0146944    .0071146
+-------------------------------------------------------------------------------------
+
+. restore
+
+. 
+. preserve
+
+. drop if inlist(country, "Iraq", "Lebanon")
+(32 observations deleted)
+
+. set seed 12345
+
+. xtlsdvc ln_ef_prod ln_palma $controls, initial(ab) vcov(50)
+Note: Bias correction initialized by Arellano and Bond estimator
+note: Bias correction up to order O(1/T)
+
+LSDVC dynamic regression
+(bootstrapped SE)
+-------------------------------------------------------------------------------------
+         ln_ef_prod | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+         ln_ef_prod |
+                L1. |   .6062498   .0557661    10.87   0.000     .4969503    .7155492
+                    |
+           ln_palma |    .104053   .0431717     2.41   0.016     .0194379     .188668
+  ln_gdp_per_capita |   .0650436   .1445473     0.45   0.653    -.2182639    .3483511
+          ln_gdp_sq |   .0007188   .0080227     0.09   0.929    -.0150055    .0164431
+ihs_renew_share_eia |   -.066375   .0188342    -3.52   0.000    -.1032894   -.0294607
+       ln_urban_pct |   -.177889   .1220719    -1.46   0.145    -.4171455    .0613674
+  ln_trade_openness |   .0768537   .0312888     2.46   0.014     .0155287    .1381787
+      ihs_oil_rents |   .0294401   .0122291     2.41   0.016     .0054716    .0534087
+     ihs_fdi_unctad |   -.001972   .0061212    -0.32   0.747    -.0139693    .0100252
+-------------------------------------------------------------------------------------
+
+. restore
+
+. 
+. /* --- 2. LEAVE-ONE-OUT (LOO) TRACKING --- */
+. display "--- LEAVE-ONE-OUT STABILITY TEST ---"
+--- LEAVE-ONE-OUT STABILITY TEST ---
+
+. matrix loo_results = J(17, 1, .)
+
+. local row = 1
+
+. levelsof country_id, local(countries)
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17
+
+. foreach c of local countries {
+  2.     set seed 12345
+  3.     quietly xtlsdvc ln_ef_prod ln_palma $controls if country_id != `c', initial(ab) vcov(50)
+  4.     local beta_palma = _b[ln_palma]
+  5.     matrix loo_results[`row', 1] = `beta_palma'
+  6.     local row = `row' + 1
+  7. }
+
+. svmat loo_results, names(loo_)
+
+. summarize loo_1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       loo_1 |         17    .0820453    .0121518   .0550267   .1017034
+
+. display "LOO Min: " r(min) " | LOO Max: " r(max)
+LOO Min: .05502672 | LOO Max: .10170342
+
+. 
+. log close
+      name:  <unnamed>
+       log:  C:\Users\Amirhossein\Desktop\MENA-Ecological-Footprint-Dynamics\results/logs/05_sensitivity_log.txt
+  log type:  text
+ closed on:  29 Sep 2026, 12:47:40
+------------------------------------------------------------------------------------------------------------------------------------------

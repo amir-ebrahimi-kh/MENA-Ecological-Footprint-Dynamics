@@ -1,0 +1,25 @@
+{
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\begin{tabular}{l*{3}{c}}
+\hline\hline
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}\\
+                    &\multicolumn{1}{c}{ln\_ef\_carbon}&\multicolumn{1}{c}{ln\_ef\_noncarbon}&\multicolumn{1}{c}{ln\_co2\_owid}\\
+\hline
+L.ln\_ef\_carbon      &       0.659\sym{***}&                     &                     \\
+                    &     (0.046)         &                     &                     \\
+[1em]
+ln\_palma            &       0.091\sym{**} &       0.050         &       0.028         \\
+                    &     (0.046)         &     (0.063)         &     (0.061)         \\
+[1em]
+L.ln\_ef\_noncarbon   &                     &       0.766\sym{***}&                     \\
+                    &                     &     (0.057)         &                     \\
+[1em]
+L.ln\_co2\_owid       &                     &                     &       0.784\sym{***}\\
+                    &                     &                     &     (0.052)         \\
+\hline
+Observations        &         255         &         255         &         255         \\
+\hline\hline
+\multicolumn{4}{l}{\footnotesize Standard errors in parentheses}\\
+\multicolumn{4}{l}{\footnotesize \sym{*} \(p<0.10\), \sym{**} \(p<0.05\), \sym{***} \(p<0.01\)}\\
+\end{tabular}
+}

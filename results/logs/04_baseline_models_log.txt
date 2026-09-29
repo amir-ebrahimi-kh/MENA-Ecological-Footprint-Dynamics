@@ -1,0 +1,290 @@
+------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\Amirhossein\Desktop\MENA-Ecological-Footprint-Dynamics\results/logs/04_baseline_models_log.txt
+  log type:  text
+ opened on:  29 Sep 2026, 12:33:23
+
+. 
+. import delimited "data/cleaned/engineered_panel.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(19 vars, 272 obs)
+
+. encode country, generate(country_id)
+
+. xtset country_id year
+
+Panel variable: country_id (strongly balanced)
+ Time variable: year, 2005 to 2020
+         Delta: 1 unit
+
+. 
+. gen ln_gdp_sq = ln_gdp_per_capita^2
+
+. global controls ln_gdp_per_capita ln_gdp_sq ihs_renew_share_eia ln_urban_pct ln_trade_openness ihs_oil_rents ihs_fdi_unctad
+
+. 
+. /* --- 1. POOLED OLS & FE BOUNDS FOR THE LAG COEFFICIENT --- */
+. reg ln_ef_prod L.ln_ef_prod ln_palma $controls, vce(cluster country_id)
+
+Linear regression                               Number of obs     =        255
+                                                F(9, 16)          =   13962.72
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.9950
+                                                Root MSE          =     .06757
+
+                                   (Std. err. adjusted for 17 clusters in country_id)
+-------------------------------------------------------------------------------------
+                    |               Robust
+         ln_ef_prod | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+         ln_ef_prod |
+                L1. |   .9463186    .025317    37.38   0.000     .8926489    .9999882
+                    |
+           ln_palma |   .0212496   .0154538     1.38   0.188    -.0115109    .0540102
+  ln_gdp_per_capita |   .1190317    .044713     2.66   0.017     .0242444     .213819
+          ln_gdp_sq |  -.0049376   .0029458    -1.68   0.113    -.0111824    .0013072
+ihs_renew_share_eia |   .0033479   .0170984     0.20   0.847    -.0328991    .0395949
+       ln_urban_pct |   .0048345   .0343057     0.14   0.890    -.0678902    .0775593
+  ln_trade_openness |   .0102956   .0162091     0.64   0.534    -.0240661    .0446573
+      ihs_oil_rents |   .0130921   .0049783     2.63   0.018     .0025386    .0236455
+     ihs_fdi_unctad |    .007053    .003803     1.85   0.082    -.0010091    .0151151
+              _cons |  -.7741449   .1986685    -3.90   0.001    -1.195303   -.3529865
+-------------------------------------------------------------------------------------
+
+. estimates store m_ols
+
+. xtreg ln_ef_prod L.ln_ef_prod ln_palma $controls, fe vce(cluster country_id)
+
+Fixed-effects (within) regression               Number of obs     =        255
+Group variable: country_id                      Number of groups  =         17
+
+R-squared:                                      Obs per group:
+     Within  = 0.7697                                         min =         15
+     Between = 0.9826                                         avg =       15.0
+     Overall = 0.9783                                         max =         15
+
+                                                F(9,16)           =     298.80
+corr(u_i, Xb) = 0.8882                          Prob > F          =     0.0000
+
+                                   (Std. err. adjusted for 17 clusters in country_id)
+-------------------------------------------------------------------------------------
+                    |               Robust
+         ln_ef_prod | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+         ln_ef_prod |
+                L1. |   .5664916   .0660408     8.58   0.000     .4264914    .7064919
+                    |
+           ln_palma |   .0881814   .0414462     2.13   0.049     .0003195    .1760433
+  ln_gdp_per_capita |   .0739146   .0731112     1.01   0.327    -.0810741    .2289034
+          ln_gdp_sq |   .0011805   .0044142     0.27   0.793    -.0081771    .0105382
+ihs_renew_share_eia |  -.0642114   .0180975    -3.55   0.003    -.1025764   -.0258464
+       ln_urban_pct |  -.1922551   .1315906    -1.46   0.163    -.4712148    .0867046
+  ln_trade_openness |   .0801319   .0260939     3.07   0.007     .0248154    .1354484
+      ihs_oil_rents |   .0298141   .0128269     2.32   0.034     .0026224    .0570059
+     ihs_fdi_unctad |  -.0015682   .0043186    -0.36   0.721    -.0107233    .0075869
+              _cons |  -.0923545   .7744032    -0.12   0.907    -1.734016    1.549307
+--------------------+----------------------------------------------------------------
+            sigma_u |  .28613113
+            sigma_e |   .0553068
+                rho |   .9639839   (fraction of variance due to u_i)
+-------------------------------------------------------------------------------------
+
+. estimates store m_fe
+
+. 
+. /* --- 2. BASELINE LSDVC (MANUSCRIPT TABLE 3, MODEL 1) --- */
+. set seed 12345
+
+. xtlsdvc ln_ef_prod ln_palma $controls, initial(ab) bias(3) vcov(200)
+Note: Bias correction initialized by Arellano and Bond estimator
+note: Bias correction up to order O(1/NT^2)
+
+LSDVC dynamic regression
+(bootstrapped SE)
+-------------------------------------------------------------------------------------
+         ln_ef_prod | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+         ln_ef_prod |
+                L1. |   .6740397   .0518531    13.00   0.000     .5724095      .77567
+                    |
+           ln_palma |   .0749896   .0357484     2.10   0.036      .004924    .1450551
+  ln_gdp_per_capita |   .0348599   .1289261     0.27   0.787    -.2178306    .2875504
+          ln_gdp_sq |    .002701    .007292     0.37   0.711    -.0115911     .016993
+ihs_renew_share_eia |  -.0577059   .0152931    -3.77   0.000    -.0876799   -.0277319
+       ln_urban_pct |  -.1311273   .1174502    -1.12   0.264    -.3613254    .0990709
+  ln_trade_openness |   .0813191   .0254074     3.20   0.001     .0315215    .1311168
+      ihs_oil_rents |   .0237919   .0097004     2.45   0.014     .0047796    .0428043
+     ihs_fdi_unctad |  -.0023073   .0054607    -0.42   0.673      -.01301    .0083953
+-------------------------------------------------------------------------------------
+
+. estimates store m_baseline
+
+. 
+. /* --- 3. SYSTEM GMM DIAGNOSTICS (MANUSCRIPT TABLE 3, MODEL 2) --- */
+. capture which xtabond2
+
+. if _rc quietly ssc install xtabond2
+
+. xtabond2 ln_ef_prod L.ln_ef_prod ln_palma $controls, gmm(L.ln_ef_prod ln_palma, lag(1 2) collapse) iv($controls) twostep robust small
+Favoring space over speed. To switch, type or click on mata: mata set matafavor speed, perm.
+
+Dynamic panel-data estimation, two-step system GMM
+------------------------------------------------------------------------------
+Group variable: country_id                      Number of obs      =       255
+Time variable : year                            Number of groups   =        17
+Number of instruments = 14                      Obs per group: min =        15
+F(9, 16)      =  11116.58                                      avg =     15.00
+Prob > F      =     0.000                                      max =        15
+-------------------------------------------------------------------------------------
+                    |              Corrected
+         ln_ef_prod | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+         ln_ef_prod |
+                L1. |    .926546   .1442816     6.42   0.000     .6206827    1.232409
+                    |
+           ln_palma |   .0861956   .0367714     2.34   0.032     .0082437    .1641475
+  ln_gdp_per_capita |   .2139715   .0890461     2.40   0.029     .0252022    .4027408
+          ln_gdp_sq |   -.010268   .0088349    -1.16   0.262    -.0289972    .0084611
+ihs_renew_share_eia |  -.0016169    .044408    -0.04   0.971    -.0957576    .0925239
+       ln_urban_pct |   .0484797   .1007215     0.48   0.637    -.1650402    .2619997
+  ln_trade_openness |   .0174955   .0292961     0.60   0.559    -.0446093    .0796004
+      ihs_oil_rents |   .0251266   .0160599     1.56   0.137    -.0089189    .0591722
+     ihs_fdi_unctad |   .0074135    .011403     0.65   0.525    -.0167597    .0315867
+              _cons |  -1.549429   .5400963    -2.87   0.011    -2.694382   -.4044761
+-------------------------------------------------------------------------------------
+Instruments for first differences equation
+  Standard
+    D.(ln_gdp_per_capita ln_gdp_sq ihs_renew_share_eia ln_urban_pct
+    ln_trade_openness ihs_oil_rents ihs_fdi_unctad)
+  GMM-type (missing=0, separate instruments for each period unless collapsed)
+    L(1/2).(L.ln_ef_prod ln_palma) collapsed
+Instruments for levels equation
+  Standard
+    ln_gdp_per_capita ln_gdp_sq ihs_renew_share_eia ln_urban_pct
+    ln_trade_openness ihs_oil_rents ihs_fdi_unctad
+    _cons
+  GMM-type (missing=0, separate instruments for each period unless collapsed)
+    D.(L.ln_ef_prod ln_palma) collapsed
+------------------------------------------------------------------------------
+Arellano-Bond test for AR(1) in first differences: z =  -2.63  Pr > z =  0.009
+Arellano-Bond test for AR(2) in first differences: z =   0.92  Pr > z =  0.355
+------------------------------------------------------------------------------
+Sargan test of overid. restrictions: chi2(4)    =  13.58  Prob > chi2 =  0.009
+  (Not robust, but not weakened by many instruments.)
+Hansen test of overid. restrictions: chi2(4)    =   8.16  Prob > chi2 =  0.086
+  (Robust, but weakened by many instruments.)
+
+Difference-in-Hansen tests of exogeneity of instrument subsets:
+  GMM instruments for levels
+    Hansen test excluding group:     chi2(2)    =   1.25  Prob > chi2 =  0.535
+    Difference (null H = exogenous): chi2(2)    =   6.91  Prob > chi2 =  0.032
+
+
+. estimates store m_gmm
+
+. 
+. /* --- 4. FALSIFICATION: CARBON VS NON-CARBON VS TERRITORIAL CO2 (MANUSCRIPT TABLE 4) --- */
+. set seed 12345
+
+. xtlsdvc ln_ef_carbon ln_palma $controls, initial(ab) bias(3) vcov(200)
+Note: Bias correction initialized by Arellano and Bond estimator
+note: Bias correction up to order O(1/NT^2)
+
+LSDVC dynamic regression
+(bootstrapped SE)
+-------------------------------------------------------------------------------------
+       ln_ef_carbon | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+       ln_ef_carbon |
+                L1. |   .6594242   .0463897    14.21   0.000     .5685021    .7503463
+                    |
+           ln_palma |   .0905849   .0461499     1.96   0.050     .0001326    .1810371
+  ln_gdp_per_capita |   .2092588   .1697301     1.23   0.218    -.1234061    .5419236
+          ln_gdp_sq |  -.0054608    .009556    -0.57   0.568    -.0241902    .0132686
+ihs_renew_share_eia |    -.06186   .0194745    -3.18   0.001    -.1000294   -.0236906
+       ln_urban_pct |  -.2665352    .151537    -1.76   0.079    -.5635424    .0304719
+  ln_trade_openness |   .1657862   .0330073     5.02   0.000     .1010931    .2304793
+      ihs_oil_rents |   .0317716   .0127041     2.50   0.012     .0068719    .0566713
+     ihs_fdi_unctad |   -.003264   .0070752    -0.46   0.645    -.0171312    .0106032
+-------------------------------------------------------------------------------------
+
+. estimates store m_carbon
+
+. 
+. set seed 12345
+
+. xtlsdvc ln_ef_noncarbon ln_palma $controls, initial(ab) bias(3) vcov(200)
+Note: Bias correction initialized by Arellano and Bond estimator
+note: Bias correction up to order O(1/NT^2)
+
+LSDVC dynamic regression
+(bootstrapped SE)
+-------------------------------------------------------------------------------------
+    ln_ef_noncarbon | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+    ln_ef_noncarbon |
+                L1. |   .7663392   .0571796    13.40   0.000     .6542693    .8784092
+                    |
+           ln_palma |   .0496971   .0627293     0.79   0.428    -.0732501    .1726443
+  ln_gdp_per_capita |   .0897865   .2193242     0.41   0.682    -.3400811     .519654
+          ln_gdp_sq |  -.0056873   .0125568    -0.45   0.651    -.0302982    .0189235
+ihs_renew_share_eia |  -.0141627   .0263673    -0.54   0.591    -.0658417    .0375164
+       ln_urban_pct |   .1998222   .2082484     0.96   0.337    -.2083371    .6079814
+  ln_trade_openness |  -.0601354    .045659    -1.32   0.188    -.1496254    .0293546
+      ihs_oil_rents |    .030161   .0170219     1.77   0.076    -.0032013    .0635232
+     ihs_fdi_unctad |   .0028187   .0097468     0.29   0.772    -.0162845     .021922
+-------------------------------------------------------------------------------------
+
+. estimates store m_noncarbon
+
+. 
+. set seed 12345
+
+. xtlsdvc ln_co2_owid ln_palma $controls, initial(ab) bias(3) vcov(200)
+Note: Bias correction initialized by Arellano and Bond estimator
+note: Bias correction up to order O(1/NT^2)
+
+LSDVC dynamic regression
+(bootstrapped SE)
+-------------------------------------------------------------------------------------
+        ln_co2_owid | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+--------------------+----------------------------------------------------------------
+        ln_co2_owid |
+                L1. |    .783556   .0523332    14.97   0.000     .6809849    .8861272
+                    |
+           ln_palma |   .0282905   .0613822     0.46   0.645    -.0920164    .1485975
+  ln_gdp_per_capita |   .2193944   .2262091     0.97   0.332    -.2239672    .6627561
+          ln_gdp_sq |  -.0076068   .0128086    -0.59   0.553    -.0327113    .0174977
+ihs_renew_share_eia |   -.097022   .0266104    -3.65   0.000    -.1491774   -.0448665
+       ln_urban_pct |  -.0726241   .1994467    -0.36   0.716    -.4635324    .3182843
+  ln_trade_openness |   .1217187   .0449311     2.71   0.007     .0336553    .2097821
+      ihs_oil_rents |   .0297041   .0171702     1.73   0.084    -.0039489    .0633571
+     ihs_fdi_unctad |   .0000602   .0095952     0.01   0.995    -.0187461    .0188666
+-------------------------------------------------------------------------------------
+
+. estimates store m_co2
+
+. 
+. /* --- EXPORT TABLES --- */
+. capture mkdir "results/tables"
+
+. capture which esttab
+
+. if _rc quietly ssc install estout
+
+. 
+. esttab m_baseline m_gmm using "results/tables/Table3_Baseline_LSDVC.tex", replace style(tex) label b(3) se(3) star(* 0.10 ** 0.05 *** 0.
+> 01) keep(L.ln_ef_prod ln_palma)
+(output written to results/tables/Table3_Baseline_LSDVC.tex)
+
+. esttab m_carbon m_noncarbon m_co2 using "results/tables/Table4_Falsification.tex", replace style(tex) label b(3) se(3) star(* 0.10 ** 0.
+> 05 *** 0.01) keep(L.ln_ef_carbon L.ln_ef_noncarbon L.ln_co2_owid ln_palma)
+(output written to results/tables/Table4_Falsification.tex)
+
+. 
+. log close
+      name:  <unnamed>
+       log:  C:\Users\Amirhossein\Desktop\MENA-Ecological-Footprint-Dynamics\results/logs/04_baseline_models_log.txt
+  log type:  text
+ closed on:  29 Sep 2026, 12:39:38
+------------------------------------------------------------------------------------------------------------------------------------------

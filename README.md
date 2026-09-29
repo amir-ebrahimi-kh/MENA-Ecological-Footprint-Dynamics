@@ -1,54 +1,72 @@
-Markdown
-# MENA Ecological Footprint Dynamics: A Dynamic Panel Threshold Analysis
+# The Impact of Income Inequality on the Ecological Footprint in MENA Countries
 
-## 📌 Overview
+**Replication Repository for:** *The Impact of Income Inequality on the Ecological Footprint in MENA Countries: A Comparative Study of Linear and Non-linear Methods* (Submitted to *Ecological Economics*).
 
-This repository contains the complete, reproducible data engineering and econometric pipeline for analyzing the non-linear impacts of income inequality (Palma ratio, Gini coefficient) on environmental degradation in the MENA region (2005–2020).
+This repository contains the complete data pipeline, Python preprocessing scripts, and Stata econometric models required to replicate all tables, figures, and statistical findings presented in the manuscript. 
 
-## 🛠️ Methodological Highlights
+## 📌 Project Overview
 
-* **Data Engineering & Visualization (Python):** Automated processing of raw panel data, implementing distance-weighted K-Nearest Neighbors (KNN, $k=3$) imputation for missing values, and applying Inverse Hyperbolic Sine (IHS) and logarithmic transformations.
-* **Baseline Econometrics (Stata):** Dynamic Fixed Effects estimation utilizing the Bruno (2005) implementation of the Kiviet (1995) bias-corrected LSDV estimator to resolve Nickell bias in small-$T$ dynamic panels.
-* **Non-Linear Analysis (Stata):** Dynamic panel data threshold estimation utilizing the Kremer et al. (2013) Forward Orthogonal Deviations (FOD) transformation to identify regime-switching effects in environmental degradation.
+This study investigates the association between income inequality (measured by the Palma ratio) and the production-based Ecological Footprint across 17 Middle East and North Africa (MENA) countries from 2005 to 2020. 
 
-## 📂 Repository Architecture
+Grounded in the **political economy of the environment (the "Boyce effect")**, the methodology contrasts linear dynamic panel models against non-linear threshold regimes to test whether elite-driven domestic infrastructure and resource extraction drive ecological overshoot in rentier states.
 
-```text
-MENA-Ecological-Footprint-Dynamics/
-│
+## 📂 Repository Structure
+
+The project is organized to ensure strictly reproducible workflows from raw data to final estimates:
+
 ├── data/
-│   ├── raw/                      # Raw input variables (master panel)
-│   └── processed/                # Engineered panel output from Python pipeline
-│
+│   ├── raw/                 # Original data from GFN, WDI, WID, OWID, and IEA
+│   └── cleaned/             # Processed datasets ready for econometric modeling
 ├── src/
-│   ├── 01_data_preprocessing.py  # Python: Data cleaning, KNN, transformations
-│   ├── 02_linear_baseline_dfe.do # Stata: Kiviet bias-corrected LSDVC models
-│   ├── 03_dynamic_threshold_fod.do # Stata: Kremer FOD Threshold models & graphs
-│   └── 04_visualizations.py      # Python: Descriptive trend analysis & charting
-│
+│   ├── 00_build_master_panel.py      # Merges raw datasets
+│   ├── 01_data_engineering.py        # Handles KNN imputation and IHS transformations
+│   ├── 03_pre_estimation_tests.do    # Stata: Unit roots, CSD, and collinearity tests
+│   ├── 04_baseline_and_robustness.do # Stata: LSDVC and Sys-GMM estimations (Tables 3 & 4)
+│   ├── 06_threshold_correction.do    # Stata: Dynamic Panel Threshold Regression (Table 5)
+│   └── 08_plot_ecological_deficit.py # Python: Generates Figure 1
 ├── results/
-│   ├── tables/                   # Automated CSV outputs of regression matrices
-│   └── figures/                  # High-resolution Likelihood Ratio (LR) & trend plots
-│
-├── .gitignore                    # Standard Git ignore file
-├── requirements.txt              # Python dependencies
-└── README.md                     # Project documentation
+│   ├── figures/             # Output directory for generated PNG/EPS charts
+│   ├── logs/                # Stata and Python execution logs
+│   └── tables/              # LaTeX and CSV outputs of regression tables
+├── requirements.txt         # Python dependencies
+└── README.md
 
-🚀 Replication Guide
-This pipeline is designed for seamless local execution.
 
-Step 1: Python Environment & Data Pipeline
-First, install the required Python packages, then execute the data engineering and visualization scripts.
+## 🛠️ Methodological Notes for Reviewers
 
-Bash
-pip install -r requirements.txt
-python src/01_data_preprocessing.py
-python src/04_visualizations.py
-Step 2: Econometric Modeling
-Open Stata, set your working directory to the project root, and execute the .do files. The scripts are programmed to automatically create results/tables/ and results/figures/ folders and export outputs.
+### 1. Data Engineering & Missing Values (Python)
+Given the rigid requirements of Forward Orthogonal Deviations (FOD) for strictly balanced panels, we addressed 19 missing country-year observations (<2% of the dataset) using a **K-Nearest Neighbors (KNN)** algorithm ($K=3$). 
+*   **No Target Leakage:** The dependent variables (Ecological Footprints) and inequality metrics (Palma, Gini) were strictly excluded from the imputation feature space.
+*   **IHS Transformation:** Foreign Direct Investment (FDI) data, which naturally contains negative net inflows, was transformed using the Inverse Hyperbolic Sine (IHS) function to preserve variance while allowing log-like interpretation.
 
-Stata
-do "src/02_linear_baseline_dfe.do"
-do "src/03_dynamic_threshold_fod.do"
+### 2. Linear Baseline: Kiviet Bias-Corrected LSDVC (Stata)
+To model the path-dependency of environmental degradation without succumbing to the severe instrument proliferation inherent to System-GMM in small macro-panels ($N=17$), our baseline relies on the **bias-corrected Least Squares Dummy Variable (LSDVC)** estimator (Kiviet 1995; Bruno 2005). The algorithm is initialized via Arellano-Bond with $O(1/NT^2)$ approximation and bootstrapped standard errors.
 
-(Requires community Stata packages: xtlsdvc, estout, xtendothresdpd)
+### 3. Non-Linear Model: Dynamic Panel Threshold Regression (Stata)
+To test for structural breaks across economic development stages, we employ the dynamic panel threshold regression model (Kremer et al. 2013) using **Forward Orthogonal Deviations (FOD)**. Given the $N=17$ sample bounds, these threshold estimates are presented as exploratory.
+
+## 🚀 How to Reproduce
+
+### Prerequisites
+*   **Python 3.9+**
+*   **Stata 16+** (Requires packages: xtlsdvc, xtendothresdpd, pesaran)
+
+### Step-by-Step Execution
+1.  **Clone the repository:**
+    git clone https://github.com/[your-username]/mena-ecological-inequality.git
+    cd mena-ecological-inequality
+
+2.  **Install Python dependencies:**
+    pip install -r requirements.txt
+
+3.  **Run the Data Pipeline (Python):**
+    Execute scripts 00 through 02 in the src/ folder. This will ingest the files in data/raw/, apply the KNN algorithm and IHS transformations, and output engineered_panel.csv to data/cleaned/.
+
+4.  **Run the Econometric Models (Stata):**
+    Open Stata, set your working directory to the repository root, and execute scripts 03, 04, 05, and 06 in the src/ folder. Regression tables will be exported directly to results/tables/.
+
+5.  **Generate Figures (Python):**
+    Execute scripts 07, 08, and 09 to generate the exact, publication-ready graphics used in the manuscript (Figures 1 and 2), which will be saved to results/figures/.
+
+## 📜 License & Data Availability
+The code in this repository is licensed under the MIT License. The raw macroeconomic and environmental data are publicly available from their respective providers (World Bank, Global Footprint Network, World Inequality Database, Our World in Data).

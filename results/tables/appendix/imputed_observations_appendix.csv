@@ -1,0 +1,20 @@
+Country,Year,Missing_Variables
+Libya,2011,fdi_unctad
+Libya,2014,fdi_unctad
+Libya,2015,fdi_unctad
+Libya,2016,fdi_unctad
+Libya,2017,fdi_unctad
+Libya,2018,fdi_unctad
+Libya,2019,fdi_unctad
+Libya,2020,fdi_unctad
+Syria,2012,fdi_unctad
+Syria,2013,fdi_unctad
+Syria,2014,fdi_unctad
+Syria,2015,fdi_unctad
+Syria,2016,fdi_unctad
+Syria,2017,fdi_unctad
+Syria,2018,fdi_unctad
+Syria,2019,fdi_unctad
+Syria,2020,fdi_unctad
+Yemen,2019,"gdp_per_capita, trade_openness, oil_rents"
+Yemen,2020,"gdp_per_capita, trade_openness, oil_rents"
