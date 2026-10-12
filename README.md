@@ -4,7 +4,7 @@
 ![Stata Version](https://img.shields.io/badge/stata-16+-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-**Replication Repository for:** *The Impact of Income Inequality on the Ecological Footprint in MENA Countries: A Comparative Study of Linear and Non-linear Methods* (Submitted to *Ecological Economics*).
+**Replication Repository for:** *The Impact of Income Inequality on the Ecological Footprint in MENA Countries: A Comparative Study of Linear and Non-linear Methods* .
 
 This repository contains the complete data pipeline, Python preprocessing scripts, and Stata econometric models required to replicate all tables, figures, and statistical findings presented in the manuscript.
 
